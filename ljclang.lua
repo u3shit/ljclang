@@ -740,6 +740,10 @@ local Type_mt = {
             return (clang.clang_isAbstractType(self._typ) ~= 0);
         end,
 
+        isNoexcept = function(self)
+            return (clang.clang_isNoexcept(self._typ) ~= 0);
+        end,
+
         declaration = function(self)
             return getCursor(clang.clang_getTypeDeclaration(self._typ))
         end,
