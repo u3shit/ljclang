@@ -6,21 +6,12 @@ THIS_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
 ########## PATHS ##########
 
+llvm_cflags = $(shell llvm-config --cflags --ldflags) -lclang
 ifeq ($(OS),Linux)
-    ifneq (,$(wildcard /usr/local/bin/clang))
-        prefix := /usr/local
-    else
-        prefix := /usr
-    endif
-    incdir := $(prefix)/include
-    libdir := $(prefix)/lib
-    lib := -L$(libdir) -lclang
+    llvm_cflags += -fPIC
     so := .so
 else
  ifeq ($(MINGW),MINGW)
-    rdir := /f/g/mod/clang3.3_march2013
-    incdir := $(rdir)/include
-    lib := $(rdir)/lib/libclang.lib $(rdir)/libclang.dll
     so := .dll
  else
     $(error unknown platform)
@@ -38,6 +29,7 @@ DEBUG ?= 0
 SAN ?= 0
 WARN := -std=c99 -pedantic -Wall -Werror-implicit-function-declaration
 CFLAGS ?=
+CFLAGS += $(llvm_cflags)
 
 ifneq ($(SAN),0)
     CFLAGS += -fsanitize=address,undefined
@@ -46,15 +38,6 @@ endif
 ifneq ($(DEBUG),0)
     CFLAGS += -g
 endif
-
-ifeq ($(OS),Linux)
-    CFLAGS += -I$(incdir) -fPIC
-else
- ifeq ($(MINGW),MINGW)
-    CFLAGS += -I$(incdir) $(lib)
- endif
-endif
-
 
 ########## RULES ##########
 
